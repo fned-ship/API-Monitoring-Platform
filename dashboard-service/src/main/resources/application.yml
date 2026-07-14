@@ -1,0 +1,29 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: dashboard-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/monitoring_db
+    username: monitoring
+    password: monitoring
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    consumer:
+      group-id: cg-dashboard
+      auto-offset-reset: latest
+
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+      properties:
+        spring.json.trusted.packages: "com.monitoring.common.events"
+        spring.json.use.type.headers: false

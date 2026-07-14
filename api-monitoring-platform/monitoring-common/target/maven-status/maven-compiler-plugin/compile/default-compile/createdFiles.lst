@@ -1,0 +1,4 @@
+com\monitoring\common\events\ApiMetricEvent.class
+com\monitoring\common\events\AlertEvent.class
+com\monitoring\common\events\ErrorLogEvent.class
+com\monitoring\common\events\SystemMetricEvent.class

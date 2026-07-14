@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>API Monitoring Dashboard</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI,Arial,sans-serif;
+}
+
+body{
+    background:#f3f5f9;
+    padding:30px;
+}
+
+h1{
+    margin-bottom:25px;
+    color:#2d3748;
+}
+
+.status{
+    display:inline-block;
+    padding:8px 18px;
+    border-radius:30px;
+    color:white;
+    margin-bottom:25px;
+    font-weight:bold;
+}
+
+.connected{
+    background:#16a34a;
+}
+
+.disconnected{
+    background:#dc2626;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+}
+
+.card{
+    background:white;
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+.card h2{
+    margin-bottom:20px;
+    color:#374151;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#f8fafc;
+    text-align:left;
+    padding:12px;
+}
+
+td{
+    padding:12px;
+    border-top:1px solid #eee;
+}
+
+.badge{
+    padding:5px 10px;
+    border-radius:20px;
+    color:white;
+    font-size:13px;
+}
+
+.green{
+    background:#16a34a;
+}
+
+.yellow{
+    background:#eab308;
+}
+
+.red{
+    background:#dc2626;
+}
+
+.metricBox{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.metric{
+    background:#f8fafc;
+    border-radius:10px;
+    padding:15px;
+}
+
+.metricTitle{
+    color:#6b7280;
+    margin-bottom:8px;
+}
+
+.metricValue{
+    font-size:22px;
+    font-weight:bold;
+    color:#111827;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>📊 API Monitoring Dashboard</h1>
+
+<div id="status" class="status disconnected">
+Disconnected
+</div>
+
+<div class="grid">
+
+<div class="card">
+
+<h2>Latest Metrics</h2>
+
+<div class="metricBox">
+
+<div class="metric">
+<div class="metricTitle">Service</div>
+<div id="service" class="metricValue">-</div>
+</div>
+
+<div class="metric">
+<div class="metricTitle">Endpoint</div>
+<div id="endpoint" class="metricValue">-</div>
+</div>
+
+<div class="metric">
+<div class="metricTitle">Status</div>
+<div id="statusCode" class="metricValue">-</div>
+</div>
+
+<div class="metric">
+<div class="metricTitle">Response Time</div>
+<div id="responseTime" class="metricValue">-</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Live Alerts</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Severity</th>
+<th>Message</th>
+<th>Time</th>
+</tr>
+
+</thead>
+
+<tbody id="alertsBody">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<br><br>
+
+<div class="card">
+
+<h2>Recent Metrics</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Service</th>
+<th>Endpoint</th>
+<th>Status</th>
+<th>Response</th>
+<th>Time</th>
+</tr>
+
+</thead>
+
+<tbody id="metricsBody">
+
+</tbody>
+
+</table>
+
+</div>
+
+<script>
+
+const socket = new SockJS("http://localhost:8083/ws/dashboard/live");
+
+const stompClient = Stomp.over(socket);
+
+stompClient.debug = null;
+
+stompClient.connect({},function(){
+
+document.getElementById("status").innerHTML="Connected";
+document.getElementById("status").className="status connected";
+
+stompClient.subscribe("/topic/live-metrics",function(message){
+
+const m = JSON.parse(message.body);
+
+document.getElementById("service").innerHTML=m.serviceName;
+document.getElementById("endpoint").innerHTML=m.endpoint;
+document.getElementById("statusCode").innerHTML=m.statusCode;
+document.getElementById("responseTime").innerHTML=m.responseTimeMs+" ms";
+
+const row=`
+<tr>
+<td>${m.serviceName}</td>
+<td>${m.endpoint}</td>
+<td>${m.statusCode}</td>
+<td>${m.responseTimeMs} ms</td>
+<td>${new Date().toLocaleTimeString()}</td>
+</tr>
+`;
+
+const body=document.getElementById("metricsBody");
+
+body.insertAdjacentHTML("afterbegin",row);
+
+if(body.rows.length>15)
+body.deleteRow(15);
+
+});
+
+stompClient.subscribe("/topic/live-alerts",function(message){
+
+const a = JSON.parse(message.body);
+
+let color="green";
+
+if(a.severity==="MEDIUM")
+color="yellow";
+
+if(a.severity==="HIGH")
+color="red";
+
+const row=`
+<tr>
+<td><span class="badge ${color}">${a.severity}</span></td>
+<td>${a.message}</td>
+<td>${new Date().toLocaleTimeString()}</td>
+</tr>
+`;
+
+const body=document.getElementById("alertsBody");
+
+body.insertAdjacentHTML("afterbegin",row);
+
+if(body.rows.length>15)
+body.deleteRow(15);
+
+});
+
+},
+function(){
+
+document.getElementById("status").innerHTML="Disconnected";
+document.getElementById("status").className="status disconnected";
+
+});
+
+</script>
+
+</body>
+</html>

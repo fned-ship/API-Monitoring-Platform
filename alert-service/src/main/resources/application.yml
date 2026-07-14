@@ -1,0 +1,32 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: alert-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/monitoring_db
+    username: monitoring
+    password: monitoring
+  jpa:
+    hibernate:
+      ddl-auto: update
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: cg-alert-engine
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.monitoring.common.events"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.monitoring.common.events.ApiMetricEvent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+alert:
+  latency-threshold-ms: 1000
+  error-rate-window-seconds: 60
+  error-rate-threshold: 5

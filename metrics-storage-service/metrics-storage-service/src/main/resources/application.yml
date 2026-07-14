@@ -1,0 +1,27 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: metrics-storage-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/monitoring_db
+    username: monitoring
+    password: monitoring
+  jpa:
+    hibernate:
+      ddl-auto: update   # schema is already applied via init.sql from Step 1
+    properties:
+      hibernate:
+        format_sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: cg-metrics-storage
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.monitoring.common.events"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.monitoring.common.events.ApiMetricEvent

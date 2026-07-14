@@ -1,0 +1,17 @@
+mvn clean install -pl monitoring-starter -am
+
+travel-agency : 
+mvn clean install
+mvn spring-boot:run
+
+api-monitoring-platform : 
+mvn clean install
+
+connect to database :
+psql : psql -U monitoring -d monitoring_db -h localhost -p 5432
+
+execute powershell load test :
+powershell -ExecutionPolicy Bypass -File load-test.ps1
+
+start kafka server : 
+.\bin\windows\kafka-server-start.bat .\config\kraft\server.properties

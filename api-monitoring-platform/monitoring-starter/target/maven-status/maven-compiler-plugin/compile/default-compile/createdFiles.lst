@@ -1,0 +1,5 @@
+com\monitoring\starter\config\MonitoringAutoConfiguration.class
+com\monitoring\starter\kafka\KafkaEventPublisher.class
+com\monitoring\starter\config\MonitoringProperties.class
+com\monitoring\starter\metrics\SystemMetricsScheduler.class
+com\monitoring\starter\filter\RequestMetricsFilter.class
