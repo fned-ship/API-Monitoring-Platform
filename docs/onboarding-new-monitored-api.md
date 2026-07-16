@@ -3,18 +3,18 @@
 Any Spring Boot 3.3.x REST API can be plugged into this platform in three steps.
 
 ## 1. Add the dependency
-'''xml
+```xml
 <dependency>
     <groupId>com.monitoring</groupId>
     <artifactId>monitoring-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
-'''
+```
 Requires `monitoring-common` and `monitoring-starter` to already be installed locally
 (`mvn clean install` from the platform root).
 
 ## 2. Configure two properties
-'''yaml
+```yaml
 monitoring:
   service-name: <your-service-name>   # must be unique across the platform
   enabled: true
@@ -22,7 +22,7 @@ monitoring:
 spring:
   kafka:
     bootstrap-servers: localhost:9092
-'''
+```
 
 ## 3. Point the API Gateway at it
 In `api-gateway/src/main/resources/application.yml`, update the `monitored-api` route's
