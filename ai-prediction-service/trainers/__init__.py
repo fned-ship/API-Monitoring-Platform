@@ -1,0 +1,1 @@
+# empty — marks trainers/ as a package
