@@ -15,3 +15,10 @@ powershell -ExecutionPolicy Bypass -File load-test.ps1
 
 start kafka server : 
 .\bin\windows\kafka-server-start.bat .\config\kraft\server.properties
+
+
+retrain scheduler :
+python retrain.py --interval-hours 24
+
+simulate incident :
+.\venv\Scripts\python.exe simulate_incidents.py realistic

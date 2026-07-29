@@ -1,4 +1,5 @@
-for ($i=1; $i -le 50; $i++) {
+#           --- sumilation of sending many api requests  ----
+for ($i=1; $i -le 40; $i++) {
 
     Invoke-WebRequest `
       -Uri "http://localhost:8080/api/bookings/$i" `
