@@ -10,5 +10,4 @@ Features:
 • Live WebSocket dashboard updates
 • Modular microservice architecture
 • Easy integration with new APIs using the Monitoring Starter
-
-This project was designed as the foundation for a future AI-powered prediction service capable of forecasting API failures and infrastructure issues using Large Language Models (LLMs).
+• ai prediction service
