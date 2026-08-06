@@ -6,6 +6,12 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "http://localhost:*"
+            allowedMethods: ["GET", "POST", "PUT", "OPTIONS"]
+            allowedHeaders: "*"
       routes:
         - id: monitored-api
           uri: http://localhost:8090
@@ -20,9 +26,9 @@ spring:
         - id: alert-service
           uri: http://localhost:8082
           predicates:
-            - Path=/alerts/**
+            - Path=/alerts,/alerts/**
           filters:
-            - RewritePath=/alerts/(?<segment>.*), /api/v1/alerts/${segment}
+            - RewritePath=/alerts(?<segment>/?.*), /api/v1/alerts${segment}
         - id: orange-api
           uri: http://localhost:8091
           predicates:

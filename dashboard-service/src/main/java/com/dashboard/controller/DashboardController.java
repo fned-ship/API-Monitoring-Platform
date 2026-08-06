@@ -35,4 +35,9 @@ public class DashboardController {
     public List<ApiMetricView> serviceDetail(@PathVariable String serviceName) {
         return repository.findByServiceNameOrderByTimestampDesc(serviceName);
     }
+
+    @GetMapping("/services")
+    public List<String> listServices() {
+        return repository.findDistinctServiceNames();
+    }
 }

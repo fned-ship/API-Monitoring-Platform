@@ -36,3 +36,9 @@ class PredictionEvent:
 
     def to_json_dict(self) -> dict:
         return asdict(self)
+    
+    def to_camel_dict(self) -> dict:
+        def camel(key: str) -> str:
+            parts = key.split("_")
+            return parts[0] + "".join(p.capitalize() for p in parts[1:])
+        return {camel(k): v for k, v in asdict(self).items()}

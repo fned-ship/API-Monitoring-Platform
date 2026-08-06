@@ -102,10 +102,22 @@ def _process_service_window(service_name, health_predictor, regression_predictor
     err_df = _rename_for_windowing(_events_to_df(get_recent_events("api-error-logs", service_name)), "error")
 
     features = build_feature_frame(api_df, sys_df, err_df)
+
+    print("features :  ",features[["timestamp"]].tail())
+
     if features.empty:
         return
 
     latest_window = features.iloc[-1].to_dict()
+
+
+    print("LATEST WINDOW KEYS:", latest_window.keys())
+    print("TIMESTAMP VALUE:", latest_window.get("timestamp"))
+    print("TIMESTAMP TYPE:", type(latest_window.get("timestamp")))
+
+
+
+    
     window_ts = latest_window.get("timestamp")
     window_ts_str = window_ts.isoformat() if hasattr(window_ts, "isoformat") else str(window_ts)
 
@@ -128,7 +140,7 @@ def _process_service_window(service_name, health_predictor, regression_predictor
                         contributing_features=_contributing_features(latest_window),
                         model_version=health_result["model_version"], window_timestamp=window_ts_str,
                     )
-                    publish_event(producer, "api-predictions", service_name, event.to_json_dict())
+                    publish_event(producer, "api-predictions", service_name, event.to_camel_dict())
                     print(f"[classification] published: service={service_name} severity={severity} "
                           f"risk={health_result['risk_score']:.3f}")
     except Exception as e:
@@ -146,7 +158,7 @@ def _process_service_window(service_name, health_predictor, regression_predictor
             )
             forecast_dict = forecast_event.to_json_dict()
             save_forecast(forecast_dict)
-            publish_event(producer, "api-metric-forecasts", service_name, forecast_dict)
+            publish_event(producer, "api-metric-forecasts", service_name, forecast_event.to_camel_dict())
         except Exception as e:
             print(f"[regression:{model_name}] ERROR for service='{service_name}': {e!r} — skipping")
 
